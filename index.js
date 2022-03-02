@@ -20,12 +20,14 @@ let precioTotal = 0;
 let granTotal = 0;
 let currentRow;
 form.addEventListener("submit", onSubmit);
+let edit = false; 
 
 /**
  * 
  * @param {Event} event 
  */
 function onSubmit(event){
+
     event.preventDefault();
 
     const data = new FormData(form);
@@ -42,14 +44,15 @@ function onSubmit(event){
     precioTotal = parseFloat(precio) + precioTotal;
     granTotal = parseFloat(total) + granTotal;
     let tr;
-
-    if (!codigo){
-        codigo= ++indice;
+    if (!edit){
+        indice++;
+        codigo= indice;
         tr = document.createElement("tr");
         tbody.appendChild(tr);
     } else {
         tr = currentRow;
     }
+
 
     tr.dataset.categoria = categoria;
     tr.innerHTML = `
@@ -58,7 +61,16 @@ function onSubmit(event){
         <td>${cantidad}</td>
         <td>${precio}</td>
         <td>${total}</td>
-        <td><a href="#" onclick="onEdit(event)">Editar</a> | <a href="#" onclick="onDelete(event)">Eliminar</a></td>
+        <td>
+            <section class="btn-group">
+                <a class="btn btn-sm btn-outline-secondary" href="#" onclick="onEdit(event)">
+                    <i class="bi bi-pencil-square"></i>
+                </a>
+                <a class="btn btn-sm btn-outline-danger" href="#" onclick="onDelete(event)">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </section>
+        </td>
     `
     
 
@@ -66,8 +78,9 @@ function onSubmit(event){
     precioTotalElement.innerText = precioTotal;
     granTotalElement.innerText = granTotal;
 
+    edit = false;
     form.reset();
-    form[0].focus();
+    form[1].focus();
 }
 
 /**
@@ -78,9 +91,12 @@ function onDelete(event){
 
     event.preventDefault();
 
+    edit = false;
+    form.reset();
+
     /** @type {HTMLAnchorElement} */
-    const anchor = event.target;
-    const tr = anchor.parentElement.parentElement;
+    const anchor = event.currentTarget;
+    const tr = anchor.parentElement.parentElement.parentElement;
     tbody.removeChild(tr);
 }
 
@@ -92,9 +108,11 @@ function onEdit(event){
 
     event.preventDefault();
 
+    edit = true;
+
     /** @type {HTMLAnchorElement} */
-    const anchor = event.target;
-    const tr = anchor.parentElement.parentElement;
+    const anchor = event.currentTarget;
+    const tr = anchor.parentElement.parentElement.parentElement;
     currentRow = tr;
     const celdas = tr.getElementsByTagName("td");
 

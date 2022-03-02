@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bootcamp</title>
+</head>
+<body>
+    <form action="index.html">
+        <input type="hidden" name="codigo" id="codigo">
+        <section>
+            <label for="nombre">Nombre</label>
+            <input type="text" name="nombre" id="nombre"> 
+        </section>
+        <section>
+            <label for="cantidad">Cantidad</label>
+            <input type="number" name="cantidad" id="cantidad"> 
+        </section>
+        <section>
+            <label for="precio">Precio</label>
+            <input type="number" name="precio" id="precio"> 
+        </section>
+        <section>
+            <label for="categoria">Categoria</label>
+            <select name="categoria" id="categoria">
+                <option value="1">Categoria 1</option>
+                <option value="2">Categoria 2</option>
+                <option value="3">Categoria 3</option>
+                <option value="4">Categoria 4</option>
+            </select>
+        </section>
+        <section>
+            <button type="submit">Guardar</button>
+        </section>
+    </form>
+    <section>
+        <table>
+            <thead>
+                <tr>
+                    <td>Código</td>
+                    <td>Nombre</td>
+                    <td>Cantidad</td>
+                    <td>Precio</td>
+                    <td>Total</td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2">Totales</td>
+                    <td id="cantidad-total">0</td>
+                    <td id="precio-total">0</td>
+                    <td id="gran-total">0</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </section>
+    <script src="index.js"></script>
+</body>
+</html>

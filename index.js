@@ -19,9 +19,9 @@ let cantidadTotal = 0;
 let precioTotal = 0;
 let granTotal = 0;
 let currentRow;
-form.addEventListener("submit", onSubmit);
-let edit = false; 
 
+let edit = false; 
+form.addEventListener("submit", onSubmit);
 /**
  * 
  * @param {Event} event 

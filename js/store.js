@@ -1,79 +1,159 @@
 
-
-let indice = 0;
+const ActionTypes = {
+    ProductoAgregado: "producto-agregado",
+    ProductoModificado: "producto-modificado",
+    ProductoEliminado: "producto-eliminado",
+    ProductoSeleccionado: "producto-seleccionado",
+    ProductoAgregadoModificado: "producto-agregado-o-modificado"
+}
 
 const reducer = (state, action) => {
-    if (action.type == "producto-agregado") {
-        indice++;
-        const producto = action.payload;
-        const codigo = indice
-        let total = producto.cantidad * producto.precio;
-        return {
-            ...state,
-            productos: [
-                ...state.productos,{
-                    ...producto,
-                    codigo,
-                    total
-                }
-            ]
-        }
-    }
+    switch (action.type) {
+        case ActionTypes.ProductoAgregado: 
+            return productoAgregadoReducer(state, action);
 
-    if (action.type == "producto-modificado" ){
-        const producto= action.payload
-        const productos = state.productos.slice();
-        const codigo = producto.codigo;
-        let total = producto.cantidad * producto.precio;
-        const old = productos.find((item) => item.codigo == codigo );
-        const index = productos.indexOf(old);
-        productos[index]={...producto, total };
-        return {
-            ...state,
-            productos
-        }
-    }
+        case ActionTypes.ProductoModificado: 
+            return productoModificadoReducer(state, action);
 
-    if (action.type == "producto-eliminado") {
-        const codigo = action.payload.codigo;
-        const productos = state.productos.filter((item) => item.codigo != codigo );
-        return {
-            ...state,
-            productos
-        }
-    }
+        case ActionTypes.ProductoEliminado: 
+            return productoEliminadoReducer(state, action);
 
-    if (action.type == "producto-seleccionado") {
-        const codigo = action.payload.codigo;
-        return {
-            ...state,
-            producto: state.productos.find(x => x.codigo == codigo)  || {}
-        }
+        case ActionTypes.ProductoSeleccionado: 
+            return productoSeleccionadoReducer(state, action);
+            
+        
+        default: 
+            return state;
     }
-
-    return state;
+ 
 };
 
 const productoSeleccionado = (codigo) => ({
-    type: "producto-seleccionado",
+    type: ActionTypes.ProductoSeleccionado,
     payload: {
         codigo
     }
 });
 
 const productoEliminado = (codigo) => ({
-    type: "producto-eliminado",
+    type: ActionTypes.ProductoEliminado,
     payload: {
         codigo
     }
 });
 
 const productoAgregado = (payload) => ({
-    type: "producto-agregado",
+    type: ActionTypes.ProductoAgregado,
     payload
 });
 
 const productoModificado = (payload) => ({
-    type: "producto-modificado",
+    type: ActionTypes.ProductoModificado,
     payload
 });
+
+const agregarOModificarProducto = (payload) => ({
+    type: ActionTypes.ProductoAgregadoModificado,
+    payload
+});
+
+// function loggerMiddleware (store) {
+//     return function dispatchWrapper(next) {
+//         return function actionHandler(action) {
+//             next(action);
+//             const state = store.getState();
+//             console.log("state", state)
+//             console.log("dispatching: ", action );
+//         }
+//     }
+// }
+
+const loggerMiddleware = store => next => action => {
+    console.log("dispatching: ", action );
+    const result = next(action);
+    console.log("next state", store.getState());
+    return result
+}
+
+const agregarOModificarProductoMiddleware = store => next => action => {
+    if (action.type != ActionTypes.ProductoAgregadoModificado) {
+        return next(action);
+    } 
+
+    const producto = action.payload;
+    const actionToDispatch = producto.codigo ? 
+        productoModificado(producto) : 
+        productoAgregado(producto);
+
+    store.dispatch(actionToDispatch);
+    return store.dispatch(productoSeleccionado(null));
+}
+
+function productoSeleccionadoReducer(state, action) {
+    const codigo = action.payload.codigo;
+    return {
+        ...state,
+        producto: state.productos.find(x => x.codigo == codigo) || {}
+    };
+}
+
+function productoEliminadoReducer(state, action) {
+    const codigo = action.payload.codigo;
+    const productos = state.productos.filter((item) => item.codigo != codigo);
+    return {
+        ...state,
+        producto: {},
+        productos
+    };
+}
+
+function productoModificadoReducer(state, action) {
+    const producto = action.payload;
+    const productos = state.productos.slice();
+    const codigo = producto.codigo;
+    let total = producto.cantidad * producto.precio;
+    const old = productos.find((item) => item.codigo == codigo);
+    const index = productos.indexOf(old);
+    productos[index] = { ...producto, total };
+    return {
+        ...state,
+        productos
+    };
+}
+
+function productoAgregadoReducer(state, action) {
+    const producto = action.payload;
+    let total = producto.cantidad * producto.precio;
+    return {
+        ...state,
+        productos: [
+            ...state.productos, {
+                ...producto,
+                total
+            }
+        ]
+    };
+}
+
+function generadorCodigoProductoBuilder(codigoInicial){
+    let codigo = codigoInicial;
+    return store => next => action => {
+        if (action.type != ActionTypes.ProductoAgregado) {
+
+            return next(action);
+
+        }
+
+        codigo++;
+        const actionToDispatch = {
+            ...action,
+            payload: {
+                ...action.payload,
+                codigo
+            }
+        };
+
+        return next(actionToDispatch);
+    
+    };
+}
